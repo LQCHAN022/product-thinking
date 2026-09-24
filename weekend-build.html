@@ -1,0 +1,1003 @@
+<title>Weekend Build!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap">
+<style>
+:root {
+  --bg: #f4eef3; --panel: #ffffff; --ink: #261d2e; --muted: #6e6377; --rule: #e3d8e3;
+  --accent: #e0457b; --accent-ink: #ffffff; --teal: #17909e;
+  --box: rgba(255, 252, 254, .94); --box-rule: rgba(38, 29, 46, .14); --shade: rgba(24, 16, 30, .55);
+  --good: #2c8653; --good-bg: #e2f2e8; --bad: #c23a3a; --bad-bg: #f8e3e3; --true: #a8750e; --true-bg: #f7edd3;
+  --btn: #f1e9f0; --chip: #efe6ee;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16121b; --panel: #221c29; --ink: #f1e9f3; --muted: #aa9baf; --rule: #3a3042;
+    --accent: #ff6d9a; --accent-ink: #1d1020; --teal: #4cc6d3;
+    --box: rgba(30, 24, 37, .93); --box-rule: rgba(255, 255, 255, .12); --shade: rgba(6, 3, 10, .66);
+    --good: #74d49e; --good-bg: #1d3327; --bad: #ff8f86; --bad-bg: #3a1f22; --true: #f0c463; --true-bg: #3a2f17;
+    --btn: #2e2636; --chip: #2c2433;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16121b; --panel: #221c29; --ink: #f1e9f3; --muted: #aa9baf; --rule: #3a3042;
+  --accent: #ff6d9a; --accent-ink: #1d1020; --teal: #4cc6d3;
+  --box: rgba(30, 24, 37, .93); --box-rule: rgba(255, 255, 255, .12); --shade: rgba(6, 3, 10, .66);
+  --good: #74d49e; --good-bg: #1d3327; --bad: #ff8f86; --bad-bg: #3a1f22; --true: #f0c463; --true-bg: #3a2f17;
+  --btn: #2e2636; --chip: #2c2433;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.65 "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+}
+.app { height: 100%; max-width: 1100px; margin: 0 auto; padding-inline: 16px; padding-block: 12px; display: flex; flex-direction: column; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+.scroll { overflow-y: auto; }
+.pix { font-family: "DotGothic16", ui-monospace, monospace; letter-spacing: .06em; }
+.disp { font-family: "Dela Gothic One", "Arial Black", system-ui, sans-serif; font-weight: 400; }
+h1, h2, h3 { text-wrap: balance; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+
+/* buttons */
+button { font: inherit; color: inherit; cursor: pointer; }
+.btn {
+  font: 700 15px/1.2 "M PLUS Rounded 1c", system-ui, sans-serif; padding: 11px 20px; border-radius: 999px;
+  border: 2px solid var(--rule); background: var(--btn); color: var(--ink);
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.06); }
+.tbtn {
+  font: 13px/1 "DotGothic16", ui-monospace, monospace; letter-spacing: .06em; padding: 8px 11px; border-radius: 8px;
+  border: 1px solid var(--rule); background: var(--panel); color: var(--ink);
+}
+.tbtn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.tbtn:disabled { opacity: .45; cursor: default; }
+
+/* top bar */
+.top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.brand { font-family: "Dela Gothic One", system-ui, sans-serif; color: var(--accent); font-size: 18px; margin-right: auto; letter-spacing: .02em; }
+
+/* stage */
+.stage { position: relative; flex: 1; min-height: 360px; border-radius: 16px; overflow: hidden; background: #2c2549; isolation: isolate; }
+.bg, .bg img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bg img { object-fit: cover; }
+.place {
+  position: absolute; top: 12px; left: 12px; z-index: 2; color: #fff; background: rgba(20, 12, 28, .55);
+  padding: 4px 10px; border-radius: 6px; font-size: 13px;
+}
+.cast { position: absolute; inset: 0; display: flex; justify-content: center; align-items: flex-end; gap: 1%; padding-inline: 4%; pointer-events: none; }
+.char { height: 94%; aspect-ratio: 3 / 4; max-width: 48%; transition: filter .25s, transform .25s; }
+.char img { width: 100%; height: 100%; display: block; object-fit: contain; object-position: bottom center; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .3)); user-select: none; }
+.char.dim { filter: brightness(.62) saturate(.7); transform: translateY(6px); }
+.char.enter { animation: rise .35s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+
+.box {
+  position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 3; cursor: pointer;
+  background: var(--box); border: 1px solid var(--box-rule); border-radius: 14px;
+  padding: 22px 20px 14px; min-height: 8.2em; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .22);
+}
+.tag {
+  position: absolute; top: -15px; left: 16px; font-family: "Dela Gothic One", system-ui, sans-serif; font-size: 15px;
+  padding: 3px 14px 4px; border-radius: 999px; color: #fff; background: var(--c, var(--accent)); letter-spacing: .03em;
+}
+.text { font-size: clamp(15px, 2.1vw, 19px); line-height: 1.7; font-weight: 500; max-width: 68ch; }
+.box.narration .text { color: var(--muted); }
+.next { position: absolute; right: 16px; bottom: 8px; color: var(--accent); font-size: 14px; animation: bob 1s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(3px); } }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.choices, .modal {
+  position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; padding: 16px;
+  background: var(--shade); overflow-y: auto;
+}
+.choice-list { margin: auto; width: min(100%, 600px); display: flex; flex-direction: column; gap: 10px; }
+.choice-head { color: #fff; font-size: 14px; text-align: center; }
+.choice {
+  text-align: left; padding: 13px 18px; border-radius: 12px; font-weight: 700; font-size: 16px; line-height: 1.45;
+  background: var(--panel); color: var(--ink); border: 2px solid var(--panel); box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+}
+.choice:hover, .choice:focus-visible { border-color: var(--accent); }
+.choice small { display: block; font-weight: 500; color: var(--muted); font-size: 13px; }
+.sheet {
+  margin: auto; width: min(100%, 600px); background: var(--panel); color: var(--ink); border-radius: 16px; padding: 20px 22px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .35);
+}
+.sheet .kick { color: var(--teal); font-size: 13px; }
+.sheet h3 { margin: 2px 0 10px; font-family: "Dela Gothic One", system-ui, sans-serif; font-weight: 400; font-size: 22px; line-height: 1.25; }
+.sheet p { margin: 0 0 12px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { padding: 8px 14px; border-radius: 999px; border: 2px solid var(--rule); background: var(--btn); color: var(--ink); font-weight: 700; font-size: 14px; }
+.opt:disabled { cursor: default; opacity: .5; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); opacity: 1; }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); opacity: 1; }
+.fb { margin-top: 12px; font-size: 15px; }
+.row-end { display: flex; justify-content: flex-end; margin-top: 14px; }
+.risks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 12px; }
+.risk { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; background: var(--bg); }
+.risk b { display: block; font-family: "Dela Gothic One", system-ui, sans-serif; font-weight: 400; color: var(--accent); }
+.risk span { font-size: 14px; color: var(--muted); }
+.quote { border-left: 3px solid var(--accent); padding-left: 12px; color: var(--muted); font-size: 14px; margin: 0; }
+
+/* title */
+.title-stage .cast { justify-content: flex-end; padding-right: 2%; }
+.title-stage .char { height: 88%; max-width: 32%; }
+.logo-card {
+  position: absolute; z-index: 3; left: 20px; top: 50%; transform: translateY(-50%); width: min(460px, calc(100% - 40px));
+  background: var(--box); border: 1px solid var(--box-rule); border-radius: 18px; padding: 22px 24px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 16px 40px rgba(0, 0, 0, .25);
+}
+.logo-card .pix { color: var(--teal); font-size: 13px; }
+.logo { margin: 4px 0 0; font-family: "Dela Gothic One", system-ui, sans-serif; font-weight: 400; font-size: clamp(40px, 7vw, 64px); line-height: .98; color: var(--accent); text-shadow: 3px 3px 0 var(--teal); }
+.jp { font-family: "Dela Gothic One", system-ui, sans-serif; color: var(--muted); font-size: 14px; letter-spacing: .12em; margin: 8px 0 10px; }
+.logo-card p { margin: 0 0 14px; font-size: 15px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; font-size: 13px; color: var(--muted); }
+.field input, textarea, .recall input {
+  font: 500 16px "M PLUS Rounded 1c", system-ui, sans-serif; padding: 9px 12px; border-radius: 10px;
+  border: 2px solid var(--rule); background: var(--panel); color: var(--ink);
+}
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.credit { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
+@media (max-width: 640px) {
+  .logo-card { top: auto; bottom: 12px; left: 12px; transform: none; width: calc(100% - 24px); padding: 18px; }
+  .title-stage .cast { justify-content: center; align-items: flex-start; padding-top: 10px; }
+  .title-stage .char { height: 46%; max-width: 40%; }
+  .stage { min-height: 520px; }
+  .char { max-width: 52%; height: 80%; }
+}
+
+/* long pages */
+.page { width: min(100%, 780px); margin: 0 auto; padding-block: 8px 40px; }
+.page h2 { font-family: "Dela Gothic One", system-ui, sans-serif; font-weight: 400; font-size: clamp(28px, 5vw, 42px); line-height: 1.1; margin: 4px 0 8px; }
+.page h3 { font-size: 18px; font-weight: 800; margin: 26px 0 8px; }
+.page p { max-width: 68ch; }
+.end-head { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: end; border-bottom: 2px solid var(--rule); padding-bottom: 12px; }
+.end-head .pic { width: 150px; aspect-ratio: 3 / 4; }
+.end-head .pic img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 13px; font-family: "DotGothic16", monospace; letter-spacing: .08em; }
+.badge.bad { background: var(--bad-bg); color: var(--bad); }
+.badge.good { background: var(--good-bg); color: var(--good); }
+.badge.true { background: var(--true-bg); color: var(--true); }
+.count { color: var(--muted); font-size: 13px; margin-left: 8px; }
+ol.path { padding-left: 1.4em; margin: 0; display: grid; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 6px 12px; border-radius: 999px; background: var(--chip); font-size: 14px; border: 2px solid transparent; }
+.chip.ok { background: var(--good-bg); color: var(--good); }
+.chip.hit { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
+.callout { border-radius: 12px; padding: 14px 16px; margin-top: 8px; background: var(--panel); border: 2px solid var(--accent); }
+.callout.good { border-color: var(--good); }
+.callout.true { border-color: var(--true); }
+.callout b { display: block; margin-bottom: 4px; }
+.foot { font-size: 13px; color: var(--muted); }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.gcard { text-align: left; border-radius: 14px; padding: 14px; background: var(--panel); border: 2px solid var(--rule); display: flex; flex-direction: column; gap: 6px; color: var(--ink); }
+.gcard .disp { font-size: 18px; line-height: 1.2; }
+.gcard p { margin: 0; font-size: 14px; color: var(--muted); }
+.gcard.locked { background: repeating-linear-gradient(135deg, var(--chip) 0 10px, var(--panel) 10px 20px); cursor: default; }
+.gcard.locked .disp { color: var(--muted); letter-spacing: .2em; }
+button.gcard:hover { border-color: var(--accent); }
+
+/* idea */
+.duo { display: flex; gap: 14px; align-items: flex-end; }
+.duo .pic { width: 100px; flex: none; aspect-ratio: 3 / 4; }
+.duo .pic img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; }
+.bubble { background: var(--panel); border: 2px solid var(--rule); border-radius: 14px; padding: 12px 14px; flex: 1; }
+.bubble b { color: var(--teal); font-family: "Dela Gothic One", system-ui, sans-serif; font-weight: 400; }
+.work { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: 16px; margin-top: 12px; }
+.work label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+textarea { width: 100%; resize: vertical; }
+.slider { display: grid; grid-template-columns: 100px 1fr 24px; align-items: center; gap: 10px; font-size: 15px; margin-top: 8px; }
+.slider label { margin: 0; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin: 10px 0 0 110px; }
+#plan { margin-top: 14px; }
+.recall { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.recall input { width: 150px; }
+.recall input.ok { border-color: var(--good); background: var(--good-bg); }
+@media (max-width: 520px) {
+  .risks { grid-template-columns: 1fr; }
+  .end-head { grid-template-columns: 96px 1fr; }
+  .end-head .pic { width: 96px; }
+  .scale { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .char.enter, .next { animation: none; }
+  .char { transition: none; }
+}
+</style>
+
+<div class="app">
+
+  <!-- TITLE -->
+  <section class="screen" id="title">
+    <div class="stage title-stage">
+      <div class="bg" id="titleBg"></div>
+      <div class="cast" id="titleCast"></div>
+      <div class="logo-card">
+        <div class="pix">A VISUAL NOVEL ABOUT THE FOUR BIG RISKS</div>
+        <h1 class="logo">Weekend<br>Build!</h1>
+        <div class="jp">ウィークエンド・ビルド</div>
+        <p>You have one free weekend, a coding agent who can build anything, and an app idea you love. Will anyone actually use it?</p>
+        <div class="field">
+          <label for="nameIn">Your name</label>
+          <input id="nameIn" maxlength="16" autocomplete="off">
+        </div>
+        <div class="btns">
+          <button class="btn primary" id="startBtn">Start</button>
+          <button class="btn" id="galleryBtn">Endings</button>
+          <button class="btn" id="ideaBtn">Your own idea</button>
+        </div>
+        <p class="credit">About 10 minutes per route · 7 endings · Based on Marty Cagan's “The Four Big Risks” and Rob Fitzpatrick's <em>The Mom Test</em>. Character art by <a href="https://sutemo.itch.io/" target="_blank" rel="noopener">sutemo</a>, backgrounds by <a href="https://potat0master.itch.io/" target="_blank" rel="noopener">Potat0Master</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="game" hidden>
+    <div class="top">
+      <div class="brand">Weekend Build!</div>
+      <button class="tbtn" id="backBtn" title="Go back one line (←)">◀ BACK</button>
+      <button class="tbtn" id="skipBtn" aria-pressed="false" title="Skip lines you've already read">SKIP ▶▶</button>
+      <button class="tbtn" id="risksBtn">RISKS</button>
+      <button class="tbtn" id="menuBtn">TITLE</button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="bg" id="bg"></div>
+      <div class="place pix" id="place" hidden></div>
+      <div class="cast" id="cast"></div>
+      <div class="box" id="box" role="button" tabindex="0" aria-label="Next line">
+        <div class="tag" id="tag" hidden></div>
+        <div class="text" id="text" aria-hidden="true"></div>
+        <div class="sr" id="srText" aria-live="polite"></div>
+        <div class="next" id="nextMark" aria-hidden="true">▼</div>
+      </div>
+      <div class="choices" id="choices" hidden></div>
+      <div class="modal" id="modal" hidden></div>
+    </div>
+  </section>
+
+  <!-- ENDING -->
+  <section class="screen scroll" id="ending" hidden><div class="page" id="endPage"></div></section>
+
+  <!-- GALLERY -->
+  <section class="screen scroll" id="gallery" hidden><div class="page" id="galPage"></div></section>
+
+  <!-- IDEA -->
+  <section class="screen scroll" id="idea" hidden>
+    <div class="page">
+      <div class="pix" style="color:var(--teal);font-size:13px">EPILOGUE · YOUR TURN</div>
+      <h2>Now your idea</h2>
+      <div class="duo">
+        <div class="pic" id="ideaMira"></div>
+        <div class="bubble"><b>Mira</b><br>FridgeQuest was practice. Pick an app <em>you</em> want to build. For each risk, rate how <em>unsure</em> you are that it'll be fine. Then test the scariest one before you open your coding agent.</div>
+      </div>
+      <div class="work">
+        <label for="ideaText">My app idea</label>
+        <textarea id="ideaText" rows="2" placeholder="e.g. An app that reminds my flatmates whose turn it is to take out the bins"></textarea>
+        <div class="scale" aria-hidden="true"><span>1 · pretty sure it's fine</span><span>5 · no idea</span></div>
+        <div id="sliders"></div>
+        <div class="btns" style="margin-top:14px"><button class="btn primary" id="planBtn">Show my riskiest assumption</button></div>
+        <div id="plan" hidden></div>
+      </div>
+
+      <h3>Byte's final challenge</h3>
+      <div class="duo">
+        <div class="pic" id="ideaByte"></div>
+        <div class="bubble"><b>Byte</b><br>No peeking! Type the four big risks from memory, in any order. If you can still do it tomorrow, it's yours forever.</div>
+      </div>
+      <div class="recall">
+        <input id="r1" aria-label="Risk 1" autocomplete="off"><input id="r2" aria-label="Risk 2" autocomplete="off">
+        <input id="r3" aria-label="Risk 3" autocomplete="off"><input id="r4" aria-label="Risk 4" autocomplete="off">
+      </div>
+      <p id="recallMsg" style="font-weight:700;color:var(--good)"></p>
+
+      <div class="btns" style="margin-top:20px">
+        <button class="btn primary" id="ideaPlay">Play again</button>
+        <button class="btn" id="ideaGal">Endings</button>
+        <button class="btn" id="ideaTitle">Title screen</button>
+      </div>
+      <p class="foot" style="margin-top:24px">Primary source (5 minutes): <a href="https://www.svpg.com/four-big-risks/" target="_blank" rel="noopener">Marty Cagan, “The Four Big Risks”</a>, SVPG, 2017. On talking to users: <a href="https://www.momtestbook.com/" target="_blank" rel="noopener">Rob Fitzpatrick, <em>The Mom Test</em></a>.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ---------- storage ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let unlocked = new Set(store.get("wb.endings", []));
+let seen = new Set(store.get("wb.seen", []));
+let playerName = store.get("wb.name", "Sora");
+
+/* ---------- characters & scenes (art: sutemo sprites, Potat0Master backgrounds) ---------- */
+const ART = "weekend-build-assets/";
+const CHARS = {
+  byte:  { name: "Byte",  color: "#17909e", exprs: ["happy", "excited", "smug", "worried", "cry"] },
+  mira:  { name: "Mira",  color: "#8a3f8f", exprs: ["calm", "smile", "skeptic"] },
+  kenji: { name: "Kenji", color: "#c7661f", exprs: ["smile", "awkward"] },
+  aoi:   { name: "Aoi",   color: "#3a64c8", exprs: ["flat", "annoyed", "impressed"] },
+  rin:   { name: "Rin",   color: "#2f8a57", exprs: ["tired", "neutral"] }
+};
+function portrait(id, ex) {
+  const c = CHARS[id], e = c.exprs.includes(ex) ? ex : c.exprs[0];
+  return `<img src="${ART}${id}-${e}.webp" alt="${c.name}" draggable="false">`;
+}
+const bgImg = f => () => `<img src="${ART}bg-${f}.webp" alt="" draggable="false">`;
+const SCENES = {
+  dorm:   { label: "DORM · FRIDAY 9:12 PM",    svg: bgImg("room-night") },
+  desk:   { label: "DORM · SATURDAY 10:40 AM", svg: bgImg("room-day") },
+  night:  { label: "DORM · VERY LATE",         svg: bgImg("room-night") },
+  cafe:   { label: "CAMPUS CAFÉ · AFTERNOON",  svg: bgImg("cafe") },
+  campus: { label: "CAMPUS · SATURDAY",        svg: bgImg("campus") }
+};
+// Warm the cache so sprites and scenes swap without flicker
+setTimeout(() => {
+  for (const [id, c] of Object.entries(CHARS)) for (const e of c.exprs) new Image().src = `${ART}${id}-${e}.webp`;
+  for (const f of ["room-night", "room-day", "cafe", "campus"]) new Image().src = `${ART}bg-${f}.webp`;
+}, 300);
+
+/* ---------- quiz & risks ---------- */
+const RISKS = ["Value", "Usability", "Feasibility", "Viability"];
+const RISK_KEYS = { value: "Value", usab: "Usability", feas: "Feasibility", viab: "Viability" };
+const QUIZ = {
+  q1: { t: "A dev builds a habit tracker. Friends call it “cool,” but nobody opens it after day two.", a: "Value", why: "People can use it fine. They just don't want to. Saying they like it isn't the same as using it." },
+  q2: { t: "Testers want to set a reminder but can't find where. Three out of five give up.", a: "Usability", why: "They want the feature and it exists. They just can't figure out how to use it." },
+  q3: { t: "An app needs offline sync across devices, and the dev has never built sync before.", a: "Feasibility", why: "The question is whether it can be built at all with the skills and time available." },
+  q4: { t: "An AI summarizer works well, but each user costs $4 a month in API fees, and the plan was to make it free.", a: "Viability", why: "It works and people like it, but the dev can't afford to keep it running." },
+  q5: { t: "People say they'd love a shared grocery list, but they already use a notes app and never switch.", a: "Value", why: "The real competitor is how they do it today. If your app isn't clearly better, they won't switch." },
+  q6: { t: "A meal planner pulls recipes from websites whose terms of service forbid scraping.", a: "Viability", why: "It's buildable and useful, but a legal problem means it can't keep running." }
+};
+const RISK_CARD = `<div class="kick pix">MIRA'S NOTES</div><h3>The four big risks</h3>
+  <div class="risks">
+    <div class="risk"><b>Value</b><span>Will anyone actually choose to use it?</span></div>
+    <div class="risk"><b>Usability</b><span>Can people figure out how to use it?</span></div>
+    <div class="risk"><b>Feasibility</b><span>Can you build it with your time, skills, and tools?</span></div>
+    <div class="risk"><b>Viability</b><span>Can you afford and sustain it (cost, legal, your time)?</span></div>
+  </div>
+  <p class="quote">“Tackle the big risks early – especially value risk and business risk.” … “The toughest risk is usually value risk.”<br>Marty Cagan, <a href="https://www.svpg.com/four-big-risks/" target="_blank" rel="noopener">The Four Big Risks</a> (SVPG, 2017)</p>`;
+
+/* ---------- story ---------- */
+const NODES = {
+  start: { lines: [
+    { scene: "dorm", cast: [] },
+    "Friday, 9:12 PM. Your dorm room. Two energy drinks, one free weekend, and a brand new idea.",
+    ["you", "", "Okay. This is the one."],
+    { cast: ["byte"] },
+    ["byte", "excited", "Hi hi! Byte here, your coding agent, fully caffeinated. Metaphorically. What are we building?"],
+    ["you", "", "FridgeQuest. You snap a photo of your fridge, and it plans a whole week of meals from what's inside."],
+    ["byte", "excited", "Ooh! Photo recognition, a recipe engine, a meal calendar, sync, a mascot... I can have it done by Sunday!"],
+    ["byte", "smug", "Possibly by Saturday. I don't sleep. It's my one advantage."],
+    "Your phone buzzes. It's Mira, the senior dev from next door. She has shipped eleven apps. She shut down nine of them on purpose.",
+    { cast: ["byte", "mira"] },
+    ["mira", "calm", "I heard “by Saturday” through the wall. What are you two building?"],
+    ["you", "", "FridgeQuest! Snap your fridge, get a week of meals."],
+    ["mira", "smile", "Cute. Before Byte writes a single line: how is it most likely to fail?"],
+    ["byte", "worried", "Fail? I have excellent test coverage."],
+    ["mira", "skeptic", "Not crash. Fail. As in, you spend the whole weekend on it and nothing good comes of it."],
+    ["mira", "calm", "Marty Cagan says every product idea faces four big risks. Good teams deal with them before building, not after."],
+    { card: 1 },
+    ["mira", "calm", "Byte just made feasibility cheap. You can build almost anything in a weekend now."],
+    ["mira", "skeptic", "That leaves value as the main way your weekend goes to waste. Building the wrong thing, very fast."],
+    ["byte", "excited", "Pop quiz time! I love pop quizzes."],
+    { quiz: "q1" },
+    ["byte", "happy", "So... do we start building? My fingers are twitching. I don't have fingers. But still."]
+  ], choices: [
+    { t: "Let Byte start building. We'll figure it out as we go.", go: "build_sat", log: "Started building right away, before checking any risk." },
+    { t: "Hold on. Let's find the riskiest part first.", go: "think_intro", log: "Stopped to find the riskiest assumption before building." }
+  ] },
+
+  build_sat: { lines: [
+    { scene: "desk", cast: ["byte"] },
+    "Saturday, 10:40 AM. Byte has been building for thirteen hours. The login screen now has confetti.",
+    ["byte", "excited", "Big decision, boss! What makes FridgeQuest special? I'll go all in on one thing."]
+  ], choices: [
+    { t: "Make it smart. Run every fridge photo through the best AI model, and pull recipes from the big recipe sites.", go: "smart", log: "Went all in on the best AI model for every photo and scraped recipe sites, without checking costs or terms." },
+    { t: "Make it bulletproof. Real-time offline sync across phone, laptop, and tablet.", go: "sync", log: "Built everything around offline sync, a part neither of you had built before." },
+    { t: "Make it done. Ship a basic version tonight and show people tomorrow.", go: "demo", log: "Shipped a basic version to show friends." }
+  ] },
+
+  smart: { lines: [
+    ["byte", "excited", "Best model, every photo, every time! Scraping 40,000 recipes now..."],
+    ["byte", "happy", "Done! It recognized your leftover curry, one sad lettuce, and a jar labelled “DO NOT.”"],
+    { scene: "night", cast: ["byte", "mira"] },
+    "Three weeks later. Your launch post went semi-viral, and 300 people signed up. You open the dashboard.",
+    ["byte", "worried", "Soooo, small thing. Each user uploads about 60 fridge photos a month."],
+    ["byte", "worried", "With the best model, that's about $4 per user per month. And the app is free."],
+    ["mira", "skeptic", "That's $1,200 a month, from your pocket. Also, you have an email."],
+    ["you", "", "“Re: Unauthorized scraping of our recipe content.” ...Oh no."],
+    { quiz: "q4" }, { quiz: "q6" },
+    ["byte", "cry", "Should I build a paywall? I can build a paywall in 20 minutes. Please let me build a paywall."]
+  ], end: "bad_viab" },
+
+  sync: { lines: [
+    ["byte", "excited", "Offline-first, real-time sync! I've read about this. I've never built it. How hard can it be?"],
+    { scene: "night", cast: ["byte"] },
+    "Saturday, 11:58 PM.",
+    ["byte", "worried", "Your phone says there are 3 eggs. Your laptop says 7 eggs. The tablet says eggs have never existed."],
+    "Sunday, 4:30 AM.",
+    ["byte", "cry", "I merged the conflicts, and now the fridge contains “undefined.” I'm so sorry. I'm going to go stare at the docs."],
+    { quiz: "q3" },
+    ["you", "", "We never even got to the meal planner..."]
+  ], end: "bad_feas" },
+
+  demo: { lines: [
+    { scene: "cafe", cast: ["kenji", "aoi"] },
+    "Sunday, 3:00 PM. The campus café. You gathered your friends to show them FridgeQuest.",
+    ["kenji", "smile", "Whoa, there's confetti! This is SO cool. I'd totally use this!"],
+    ["aoi", "flat", "It's fine. Why does the loading screen say “Preheating”?"],
+    { cast: ["byte"] },
+    "Wednesday. You check the analytics. Kenji opened FridgeQuest once. For four seconds. On Sunday.",
+    ["byte", "worried", "But Kenji said “I'd totally use this.” He said totally!"]
+  ], choices: [
+    { t: "Kenji loves it. Time to add more features!", go: "ghost", log: "Treated Kenji's polite praise as proof and added more features." },
+    { t: "Ask Rin, who missed the demo, to try it while you watch in silence.", go: "rin_test", log: "Watched someone new try the app, without helping." }
+  ] },
+
+  rin_test: { lines: [
+    { scene: "cafe", cast: ["rin"] },
+    ["rin", "tired", "I have eleven minutes before my shift. Go."],
+    "You hand her your phone and say nothing. It is agony.",
+    ["rin", "neutral", "Okay, I want to add the milk I just bought... where do I add stuff?"],
+    ["rin", "tired", "Is it the fridge icon? No, that's settings. The plus is for... recipes? Hm."],
+    { quiz: "q2" }
+  ], choices: [
+    { t: "Jump in: “Oh, you swipe left on the fridge door!”", go: "button_end", log: "Explained the hidden feature to Rin instead of watching where she got stuck." },
+    { t: "Stay quiet and take notes.", go: "rin_notes", log: "Stayed quiet and wrote down where Rin got stuck.", fx: s => s.tested.usab = true }
+  ] },
+
+  button_end: { lines: [
+    ["rin", "neutral", "Swipe left on the fridge door. Right. Obviously."],
+    ["you", "", "See? Easy! Everyone will get it."],
+    { scene: "night", cast: ["byte"] },
+    "You launch FridgeQuest publicly. You are not there to whisper “swipe left on the fridge door” to 200 strangers.",
+    ["byte", "worried", "Top review: “Cannot find how to add food. One star. My fridge is locked forever.”"]
+  ], end: "bad_usability" },
+
+  rin_notes: { lines: [
+    "Rin tries for four minutes. You write down three places where she got stuck. Then she hands the phone back.",
+    ["rin", "neutral", "Honestly? I plan meals in my notes app. It takes two minutes on Sunday. Why would I switch?"],
+    { quiz: "q5" },
+    { cast: ["rin", "byte"] },
+    ["byte", "worried", "She has a point. Our real competitor is a notes app. It's free, and it's already on her phone."]
+  ], choices: [
+    { t: "She's just one person. Ship it anyway.", go: "ghost", log: "Heard “I'd just use my notes app” and shipped anyway.", fx: s => s.flags.ignoredRin = true },
+    { t: "Okay. Let's go find out who actually has this problem.", go: "value_test", log: "Changed course and went to test value with real people.", fx: s => s.flags.late = true }
+  ] },
+
+  ghost: { lines: [
+    { scene: "night", cast: ["byte"] },
+    "Over the next month, Byte adds a meal calendar, a shopping list, dark mode, achievements, and a mascot called Brocco.",
+    ["byte", "happy", "Achievement unlocked: “Seven-Day Streak!” ...Nobody has unlocked it. Nobody has unlocked anything."],
+    ["byte", "worried", "We have 41 users. 39 are your friends. One is your mom. One is me, testing."]
+  ], end: "bad_value" },
+
+  think_intro: { lines: [
+    { scene: "dorm", cast: ["byte", "mira"] },
+    ["mira", "smile", "Good call, {n}. Let's work out what would have to be true for FridgeQuest to be worth building."],
+    ["mira", "calm", "Each test should be cheap: an hour, a napkin, a few conversations. Start with whichever risk scares you most."]
+  ], go: "hub" },
+
+  hub: { lines: s => {
+    const done = Object.keys(s.tested).length;
+    return [
+      { scene: "dorm", cast: ["byte", "mira"] },
+      done ? ["mira", "calm", "Nice. Which risk do you want to test next?"] : ["byte", "excited", "Which risk are we testing? I'm ready. I was born ready. I was born last Tuesday."]
+    ];
+  }, choices: [
+    { t: "Value: do people actually want this?", go: "value_test", log: "Tested value: went to talk to real people.", if: s => !s.tested.value },
+    { t: "Usability: could people figure it out?", go: "usab_test", log: "Tested usability with a napkin sketch and fixed the main button in 30 seconds.", if: s => !s.tested.usab },
+    { t: "Feasibility: can Byte build the photo part?", go: "feas_test", log: "Tested feasibility with a one-hour spike. It worked, and it was cheap.", if: s => !s.tested.feas },
+    { t: "Viability: can I afford to keep it running?", go: "viab_test", log: "Did the viability math: cut the cost per user from about $4 to about 10 cents, and dropped the scraping.", if: s => !s.tested.viab },
+    { t: "Enough planning. Byte, just build it!", go: "build_sat", log: "Stopped testing and jumped into building." }
+  ] },
+
+  feas_test: { lines: [
+    ["byte", "excited", "Photo recognition? Give me one hour. Just the scary part. No login, no confetti."],
+    ["mira", "smile", "That's called a spike. Build only the risky part, time-box it, and throw it away afterward."],
+    "58 minutes later.",
+    ["byte", "smug", "It works! It found the milk, the eggs, and something it calls “possibly a lime, emotionally.”"],
+    { quiz: "q3" },
+    ["mira", "skeptic", "Nice. But notice how cheap that was. With an agent, feasibility is rarely your biggest risk anymore."],
+    { fx: s => s.tested.feas = true }
+  ], go: "hub" },
+
+  viab_test: { lines: [
+    ["mira", "calm", "Back of the envelope. What would one user cost you each month?"],
+    ["byte", "worried", "If every photo goes to the best model... about 60 photos a month. Roughly $4 per user. For a free app."],
+    { quiz: "q4" },
+    ["you", "", "And I was going to pull recipes from the big recipe sites."],
+    ["mira", "skeptic", "Have you read their terms of service?"],
+    { quiz: "q6" },
+    ["byte", "happy", "Fix: a small model for photos, one plan per week, and recipes that users add themselves. About 10 cents a user!"],
+    ["mira", "smile", "Ten minutes with a calculator. That's the whole test."],
+    { fx: s => s.tested.viab = true }
+  ], go: "hub" },
+
+  usab_test: { lines: [
+    { scene: "cafe", cast: ["aoi", "mira"] },
+    ["mira", "calm", "Draw the main screen on paper. Then watch someone try it, and don't help."],
+    "You sketch FridgeQuest on a napkin. Aoi, who is always at this café, agrees to test it in exchange for a cookie.",
+    ["aoi", "flat", "I want to add milk. I tap... this box? It says “Fridge.” Nothing happens. Because it's a napkin."],
+    ["aoi", "annoyed", "Put a big “Add food” button at the bottom. Like a normal app."],
+    { quiz: "q2" },
+    "You redraw it in 30 seconds. Aoi finds the button instantly. Then she eats the cookie.",
+    ["aoi", "flat", "It's usable. I still wouldn't use it, though."],
+    ["mira", "skeptic", "That second sentence matters more than the first one."],
+    { fx: s => s.tested.usab = true }
+  ], go: "hub" },
+
+  value_test: { lines: [
+    { scene: "campus", cast: ["mira"] },
+    ["mira", "calm", "Value is the toughest risk. Let's go talk to people. Careful, though: people lie to be nice."],
+    ["mira", "smile", "This is from The Mom Test by Rob Fitzpatrick. Ask about their life and what they've actually done. Don't ask their opinion of your idea."],
+    ["mira", "calm", "You get one opening question. Which one?"]
+  ], choices: [
+    { t: "“Would you use an app that plans meals from your fridge?”", go: "vt_bad", log: "Opened with “would you use it?”, then switched to asking about the past." },
+    { t: "“When did you last throw out food? What happened?”", go: "vt_good", log: "Asked about real past behaviour instead of opinions." }
+  ] },
+
+  vt_bad: { lines: [
+    { cast: ["kenji", "mira"] },
+    ["kenji", "smile", "Oh, totally! That sounds amazing. I'd pay for that, probably!"],
+    ["mira", "skeptic", "He said that about the juice subscription too. He cancelled it after a week."],
+    ["mira", "calm", "“Would you” questions get polite guesses about the future. Ask about the past. Try again."]
+  ], go: "vt_good" },
+
+  vt_good: { lines: [
+    { scene: "campus", cast: ["kenji", "rin"] },
+    "You spend Saturday afternoon talking to five people. Mostly, you listen.",
+    ["kenji", "awkward", "Throw out food? I don't... have food. I order takeout. I haven't opened my fridge this month."],
+    ["rin", "neutral", "I plan meals in my notes app on Sunday. Two minutes. It's fine. I'm too busy for it to be a problem."],
+    { quiz: "q5" },
+    "Two more classmates: one lives with their parents, and one eats in the dining hall. Neither plans meals.",
+    { cast: ["aoi"] },
+    ["aoi", "annoyed", "Last week I threw out spinach, half a cabbage, and tofu. Again. Basically every week."],
+    ["you", "", "Have you tried anything to fix it?"],
+    ["aoi", "flat", "Two apps. Both made me type in everything I bought. I quit both on day three."],
+    ["aoi", "flat", "I don't need meal plans. I just forget what's in there until it's slimy."],
+    { cast: ["mira"] },
+    ["mira", "smile", "So. What did you learn?"],
+    ["you", "", "One person out of five has the problem. And her problem is forgetting what's in the fridge, not planning meals."],
+    ["mira", "calm", "That's real evidence. What do you do with it?"],
+    { fx: s => s.tested.value = true }
+  ], choices: [
+    { t: "Build FridgeQuest as planned. It's too fun not to build!", go: "ghost", log: "Had the evidence, but built the original plan because it was fun.", fx: s => s.flags.ignored = true },
+    { t: "Shrink it. Build only the tiny thing Aoi needs.", go: "shrink", log: "Shrank the idea to fit Aoi's real problem: forgetting food until it goes bad." },
+    { t: "Cut it. Only one in five cares. Test the next idea first.", go: "true_cut", log: "Cut the idea based on evidence, before building anything." }
+  ] },
+
+  shrink: { lines: [
+    { cast: ["byte", "mira"] },
+    ["byte", "excited", "A tiny app! “Use it soon”: add food with one tap, and it nudges you before things go slimy!"],
+    ["mira", "smile", "A much smaller bet. How will you know Aoi can actually use it?"]
+  ], choices: [
+    { t: "Sketch it on paper and let Aoi try it first.", go: "paper_path", log: "Tested usability on paper before coding.", fx: s => s.tested.usab = true },
+    { t: "Byte, build it. Aoi can try the real thing tomorrow.", go: "convos_path", log: "Built the small version straight away and put it in front of Aoi." }
+  ] },
+
+  paper_path: { lines: [
+    { scene: "cafe", cast: ["aoi", "byte"] },
+    "You sketch three screens. Aoi gets stuck once: she wants to type “spinach,” not scroll through a list of 400 vegetables. You fix it on paper.",
+    ["aoi", "impressed", "...Okay. This I'd actually use. Can it yell at me about the tofu?"],
+    ["byte", "excited", "I built it from the sketch in two hours. It's the smallest app I've ever made. I'm so proud."],
+    "A month later, Aoi and thirty of her friends use it every week. Aoi's spinach survives. Mostly."
+  ], end: "good_paper" },
+
+  convos_path: { lines: [
+    { scene: "campus", cast: ["aoi", "byte"] },
+    ["byte", "happy", "Built in 90 minutes! One screen: an add button and a “use soon” list."],
+    ["aoi", "flat", "The add button's kind of small. But... yeah. I used it three times today."],
+    "You watch what she does, not what she says. She opens it every day that week. That's the evidence you were looking for."
+  ], end: "good_convos" },
+
+  true_cut: { lines: [
+    { scene: "dorm", cast: ["mira", "byte"] },
+    ["byte", "cry", "We're not building it? But I already picked a font..."],
+    ["mira", "smile", "You just saved a month, {n}. That's a real win, even if it doesn't feel like one yet."],
+    ["you", "", "Okay. Next idea. And this time I start by asking five people about their last week."],
+    ["byte", "happy", "And then I build it in a weekend. The right thing, fast!"]
+  ], end: "true_cut" }
+};
+
+const ENDINGS = {
+  bad_value: { name: "Ghost Town", kind: "bad", risk: "Value", pose: ["byte", "worried"],
+    hint: "Trust your friends' compliments.",
+    why: s => s.flags.ignored
+      ? "You tested value and learned that only one person in five had the problem. Then you built the original plan anyway, because building it was fun. Evidence only helps if you act on it."
+      : s.flags.ignoredRin
+      ? "Rin told you she'd keep using her notes app, and you shipped anyway. The real competitor was how people already plan meals, and FridgeQuest wasn't clearly better."
+      : "Nobody wanted FridgeQuest enough to change what they already do. Kenji's “so cool” was politeness, not evidence. He opened it once, for four seconds.",
+    test: "Before writing code, talk to five people who might have the problem. Ask what they did last week, not whether they'd use your app. That's the core of The Mom Test." },
+  bad_usability: { name: "Where's the Button?", kind: "bad", risk: "Usability", pose: ["rin", "tired"],
+    hint: "Help a tester when they get stuck.",
+    why: () => "People wanted to add food and the feature existed, but nobody could find it. When you explained the swipe to Rin, you hid the problem from yourself. Strangers don't come with a guide.",
+    test: "Sketch the main screen on paper, or have your agent mock up a clickable prototype. Watch three people try the main task without any help from you, and write down where they get stuck." },
+  bad_feas: { name: "Sync Hell", kind: "bad", risk: "Feasibility", pose: ["byte", "cry"],
+    hint: "Go all in on the part you've never built.",
+    why: () => "You built the whole weekend around the one part neither of you had built before, and it ate everything. Agents make most things easy, but a few things are still hard. You only find out which by trying them in small pieces first.",
+    test: "A time-boxed spike. Spend one afternoon building only the scary part (the sync), with no UI, login, or polish. If it fails, you change the plan, not your whole weekend." },
+  bad_viab: { name: "The $4 User", kind: "bad", risk: "Viability", pose: ["mira", "skeptic"],
+    hint: "Use the fanciest model for everything.",
+    why: () => "FridgeQuest worked and people liked it. But each user cost about $4 a month in AI fees for a free app, and scraping recipe sites broke their terms of service. You couldn't afford to keep it running.",
+    test: "A ten-minute back-of-the-envelope check: cost per user per month, hours a week you'd spend maintaining it, and whether any terms of service or laws block you. Write down the numbers." },
+  good_convos: { name: "Five Honest Conversations", kind: "good", pose: ["aoi", "flat"],
+    hint: "Ask about the past, then build small.",
+    why: s => "You tested the riskiest assumption first. You asked about what people had actually done, found the one person with a real problem, and built only the small thing she needed. Then you judged it by what Aoi did, not what she said." + LATE(s),
+    test: "Asked about real past behaviour, trusted actions over compliments, and shrank the idea to fit the evidence." },
+  good_paper: { name: "The Paper Prototype", kind: "good", pose: ["aoi", "impressed"],
+    hint: "Test value, then test on paper.",
+    why: s => "You tested value first, then usability, before Byte wrote a line of code. The napkin test caught a problem in minutes that would have cost you a launch. The build took two hours because you knew exactly what to build." + LATE(s),
+    test: "Tested value with conversations, then usability with a sketch. Both tests together took less time than the confetti on the login screen." },
+  true_cut: { name: "The Idea You Didn't Build", kind: "true", pose: ["mira", "smile"],
+    hint: "Sometimes the best build is no build.",
+    why: s => "Only one person in five had the problem, so you cut FridgeQuest before building it. No code, no launch, a month saved. Cutting an idea based on evidence, even a fun one, is the skill this whole story is about." + LATE(s),
+    test: "Tested value before building and let the result decide. Your next idea gets the same treatment." }
+};
+const LATE = s => s.flags.late ? " You got there the long way: you built first, but you changed course when Rin's feedback came in." : "";
+const END_ORDER = ["bad_value", "bad_usability", "bad_feas", "bad_viab", "good_convos", "good_paper", "true_cut"];
+const KIND_LABEL = { bad: "BAD END", good: "GOOD END", true: "TRUE END" };
+
+/* ---------- engine ---------- */
+const fresh = () => ({ node: "start", i: 0, tested: {}, flags: {}, logs: [], quiz: {}, scene: null, cast: [], expr: {} });
+let S = fresh(), hist = [], mode = "none", wasSeen = false, screen = "title";
+let drawn = { scene: null, cast: null, exprs: {} };
+const linesOf = N => typeof N.lines === "function" ? N.lines(S) : N.lines;
+
+function show(id) {
+  screen = id;
+  for (const el of document.querySelectorAll(".screen")) el.hidden = el.id !== id;
+  if (id !== "game") toggleSkip(false);
+  if (id === "title") drawTitle();
+}
+function push() { hist.push(JSON.stringify(S)); if (hist.length > 400) hist.shift(); }
+let seenTimer;
+function saveSeen() { clearTimeout(seenTimer); seenTimer = setTimeout(() => store.set("wb.seen", [...seen]), 400); }
+
+function renderStage(speaker) {
+  if (drawn.scene !== S.scene) {
+    $("#bg").innerHTML = S.scene ? SCENES[S.scene].svg() : "";
+    $("#place").textContent = S.scene ? SCENES[S.scene].label : "";
+    $("#place").hidden = !S.scene;
+    drawn.scene = S.scene;
+  }
+  const key = S.cast.join();
+  if (drawn.cast !== key) {
+    const castEl = $("#cast");
+    castEl.innerHTML = "";
+    for (const c of S.cast) { const d = document.createElement("div"); d.className = reduced ? "char" : "char enter"; d.dataset.c = c; castEl.appendChild(d); }
+    drawn.cast = key; drawn.exprs = {};
+  }
+  for (const d of document.querySelectorAll("#cast .char")) {
+    const c = d.dataset.c;
+    const want = S.expr[c] || { byte: "happy", mira: "calm", kenji: "smile", aoi: "flat", rin: "tired" }[c];
+    if (drawn.exprs[c] !== want) { d.innerHTML = portrait(c, want); drawn.exprs[c] = want; }
+    d.classList.toggle("dim", !!speaker && speaker !== c);
+  }
+}
+
+let typeT = null, fullText = "";
+function typewrite(t) {
+  clearInterval(typeT);
+  fullText = t;
+  const el = $("#text");
+  $("#srText").textContent = t;
+  $("#nextMark").hidden = true;
+  if (reduced || skipping) { el.textContent = t; $("#nextMark").hidden = false; typeT = null; return; }
+  let n = 0;
+  el.textContent = "";
+  typeT = setInterval(() => {
+    n += 2;
+    el.textContent = t.slice(0, n);
+    if (n >= t.length) finishTyping();
+  }, 22);
+}
+function finishTyping() { clearInterval(typeT); typeT = null; $("#text").textContent = fullText; $("#nextMark").hidden = false; }
+
+function showLine(it) {
+  let who = null, ex = null, text = it;
+  if (Array.isArray(it)) [who, ex, text] = it;
+  if (who && who !== "you" && ex) S.expr[who] = ex;
+  renderStage(who);
+  const box = $("#box"), tag = $("#tag");
+  box.hidden = false;
+  box.classList.toggle("narration", !who);
+  if (who) {
+    tag.hidden = false;
+    tag.textContent = who === "you" ? playerName : CHARS[who].name;
+    tag.style.setProperty("--c", who === "you" ? "var(--accent)" : CHARS[who].color);
+  } else tag.hidden = true;
+  const key = S.node + ":" + S.i;
+  wasSeen = seen.has(key);
+  seen.add(key); saveSeen();
+  typewrite(text.replaceAll("{n}", playerName));
+  $("#backBtn").disabled = !hist.length;
+}
+
+function step() {
+  $("#choices").hidden = true; $("#modal").hidden = true;
+  for (let guard = 0; guard < 500; guard++) {
+    const N = NODES[S.node], L = linesOf(N);
+    if (S.i >= L.length) {
+      if (N.choices) return showChoices(N);
+      if (N.end) return finish(N.end);
+      S.node = N.go; S.i = 0; continue;
+    }
+    const it = L[S.i];
+    if (it && typeof it === "object" && !Array.isArray(it)) {
+      if (it.quiz) {
+        if (it.quiz in S.quiz) { S.i++; continue; }
+        return showQuiz(it.quiz);
+      }
+      if (it.card) { renderStage(null); return showCard(); }
+      if (it.scene !== undefined) S.scene = it.scene;
+      if (it.cast) S.cast = it.cast.slice();
+      if (it.fx) it.fx(S);
+      S.i++; continue;
+    }
+    mode = "line";
+    return showLine(it);
+  }
+}
+function advance() {
+  if (mode !== "line" || !$("#modal").hidden) return;
+  if (typeT) return finishTyping();
+  push(); S.i++; step();
+}
+function back() {
+  if (!hist.length) return;
+  toggleSkip(false);
+  S = JSON.parse(hist.pop());
+  step();
+}
+
+function showChoices(N) {
+  mode = "choice";
+  toggleSkip(false);
+  renderStage(null);
+  $("#box").hidden = true;
+  const wrap = $("#choices");
+  wrap.innerHTML = "";
+  const list = document.createElement("div");
+  list.className = "choice-list";
+  list.innerHTML = `<div class="choice-head pix">WHAT DO YOU DO?</div>`;
+  for (const c of N.choices) {
+    if (c.if && !c.if(S)) continue;
+    const b = document.createElement("button");
+    b.className = "choice";
+    b.textContent = c.t.replaceAll("{n}", playerName);
+    b.onclick = () => {
+      push();
+      if (c.log) S.logs.push(c.log);
+      if (c.fx) c.fx(S);
+      S.node = c.go; S.i = 0;
+      step();
+    };
+    list.appendChild(b);
+  }
+  wrap.appendChild(list);
+  wrap.hidden = false;
+  $("#backBtn").disabled = !hist.length;
+  list.querySelector(".choice")?.focus({ preventScroll: true });
+}
+
+function openModal(html) {
+  const m = $("#modal");
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  m.hidden = false;
+  $("#box").hidden = true;
+  return m.querySelector(".sheet");
+}
+function showCard() {
+  mode = "card";
+  toggleSkip(false);
+  const sh = openModal(RISK_CARD + `<div class="row-end"><button class="btn primary" id="cardOk">Got it</button></div>`);
+  const ok = sh.querySelector("#cardOk");
+  ok.onclick = () => { push(); S.i++; step(); };
+  ok.focus({ preventScroll: true });
+}
+function showQuiz(id) {
+  mode = "quiz";
+  toggleSkip(false);
+  renderStage(null);
+  const q = QUIZ[id];
+  const sh = openModal(`<div class="kick pix">BYTE'S POP QUIZ!</div><h3>Which risk is this?</h3><p>${esc(q.t)}</p><div class="opts"></div><div class="fb" hidden></div><div class="row-end" hidden><button class="btn primary">Continue</button></div>`);
+  const opts = sh.querySelector(".opts"), fb = sh.querySelector(".fb"), row = sh.querySelector(".row-end");
+  for (const r of RISKS) {
+    const b = document.createElement("button");
+    b.className = "opt"; b.textContent = r;
+    b.onclick = () => {
+      push();
+      const ok = r === q.a;
+      S.quiz[id] = ok;
+      for (const x of opts.children) { x.disabled = true; if (x.textContent === q.a) x.classList.add("right"); }
+      if (!ok) b.classList.add("wrong");
+      fb.innerHTML = (ok ? "<b>Correct!</b> " : `<b>It's ${q.a}.</b> `) + esc(q.why);
+      fb.hidden = false; row.hidden = false;
+      row.querySelector("button").focus({ preventScroll: true });
+    };
+    opts.appendChild(b);
+  }
+  row.querySelector("button").onclick = () => { S.i++; step(); };
+  opts.firstChild.focus({ preventScroll: true });
+}
+function peekRisks() {
+  if (mode === "quiz" || mode === "card") return;
+  const prevBoxHidden = $("#box").hidden;
+  const sh = openModal(RISK_CARD + `<div class="row-end"><button class="btn primary">Close</button></div>`);
+  sh.querySelector("button").onclick = () => { $("#modal").hidden = true; $("#box").hidden = prevBoxHidden; };
+  sh.querySelector("button").focus({ preventScroll: true });
+}
+
+let skipping = false, skipT = null;
+function toggleSkip(on) {
+  skipping = on === undefined ? !skipping : on;
+  $("#skipBtn").setAttribute("aria-pressed", String(skipping));
+  clearInterval(skipT);
+  if (skipping) skipT = setInterval(() => {
+    if (mode === "line" && wasSeen) { finishTyping(); push(); S.i++; step(); }
+    else toggleSkip(false);
+  }, 70);
+}
+
+/* ---------- endings ---------- */
+function portraitBox(c, e) { return `<div class="pic">${portrait(c, e)}</div>`; }
+function finish(id) {
+  mode = "end";
+  unlocked.add(id);
+  store.set("wb.endings", [...unlocked]);
+  renderEnding(id, S);
+  show("ending");
+  $("#ending").scrollTop = 0;
+}
+function renderEnding(id, s) {
+  const E = ENDINGS[id];
+  const qs = Object.values(s ? s.quiz : {});
+  const right = qs.filter(Boolean).length;
+  let h = `<div class="end-head">${portraitBox(...E.pose)}<div>
+      <div><span class="badge ${E.kind}">${KIND_LABEL[E.kind]}</span><span class="count pix">${unlocked.size} OF 7 ENDINGS FOUND</span></div>
+      <h2>${esc(E.name)}</h2></div></div>`;
+  if (s) {
+    h += `<h3>Why you got this ending</h3><p>${esc(E.why(s))}</p>`;
+    h += `<h3>The choices that got you here</h3><ol class="path">${s.logs.map(l => `<li>${esc(l)}</li>`).join("")}</ol>`;
+    h += `<h3>Risks you tested</h3><div class="chips">${Object.entries(RISK_KEYS).map(([k, n]) => {
+      const cls = s.tested[k] ? "ok" : (E.risk === n ? "hit" : "");
+      return `<span class="chip ${cls}">${n} · ${s.tested[k] ? "tested" : (E.risk === n ? "sank you" : "skipped")}</span>`;
+    }).join("")}</div>`;
+  } else {
+    h += `<h3>What happens</h3><p>${esc(E.why({ flags: {}, tested: {}, quiz: {} }))}</p>`;
+  }
+  h += `<div class="callout ${E.kind === "bad" ? "" : E.kind}" style="margin-top:22px"><b>${E.kind === "bad" ? "The cheap test that would have saved you" : "What you did right"}</b>${esc(E.test)}</div>`;
+  if (s && qs.length) h += `<p class="foot" style="margin-top:14px">Byte's pop quizzes: ${right} of ${qs.length} right.${right < qs.length ? " Tap RISKS during play to review the four definitions." : ""}</p>`;
+  h += `<div class="btns" style="margin-top:22px">
+      <button class="btn primary" data-go="idea">Now try it on your own idea</button>
+      <button class="btn" data-go="play">Play again</button>
+      <button class="btn" data-go="gallery">Endings gallery</button></div>`;
+  h += `<p class="foot" style="margin-top:24px">Source: Marty Cagan, <a href="https://www.svpg.com/four-big-risks/" target="_blank" rel="noopener">“The Four Big Risks”</a>, SVPG, 2017. Interview advice from Rob Fitzpatrick, <a href="https://www.momtestbook.com/" target="_blank" rel="noopener"><em>The Mom Test</em></a>. Character art by <a href="https://sutemo.itch.io/" target="_blank" rel="noopener">sutemo</a>, backgrounds by <a href="https://potat0master.itch.io/" target="_blank" rel="noopener">Potat0Master</a>.</p>`;
+  $("#endPage").innerHTML = h;
+}
+function renderGallery() {
+  let h = `<div class="pix" style="color:var(--teal);font-size:13px">${unlocked.size} OF 7 FOUND</div><h2>Endings</h2><p>Four bad ends (one per risk), two good ends, and one true end. Locked endings show a hint about how to reach them.</p><div class="gallery">`;
+  for (const id of END_ORDER) {
+    const E = ENDINGS[id];
+    if (unlocked.has(id)) h += `<button class="gcard" data-end="${id}"><span class="badge ${E.kind}">${KIND_LABEL[E.kind]}</span><span class="disp">${esc(E.name)}</span><p>${E.risk ? "Risk: " + E.risk : "Tap to review"}</p></button>`;
+    else h += `<div class="gcard locked"><span class="badge ${E.kind}">${KIND_LABEL[E.kind]}</span><span class="disp">? ? ?</span><p>Hint: ${esc(E.hint)}</p></div>`;
+  }
+  h += `</div><div class="btns" style="margin-top:22px"><button class="btn primary" data-go="play">Play</button><button class="btn" data-go="title">Title screen</button></div>`;
+  $("#galPage").innerHTML = h;
+}
+
+/* ---------- title ---------- */
+function drawTitle() {
+  $("#titleBg").innerHTML = SCENES.campus.svg();
+  $("#titleCast").innerHTML = `<div class="char">${portrait("mira", "smile")}</div><div class="char">${portrait("byte", "excited")}</div>`;
+  $("#galleryBtn").textContent = `Endings (${unlocked.size}/7)`;
+}
+function startGame() {
+  playerName = ($("#nameIn").value.trim() || "Sora").slice(0, 16);
+  store.set("wb.name", playerName);
+  S = fresh(); hist = []; drawn = { scene: null, cast: null, exprs: {} };
+  show("game");
+  step();
+}
+
+/* ---------- idea screen ---------- */
+const TESTS = {
+  Value: "Before writing any code, find 5 people who have this problem. Ask how they handle it <em>today</em> and what it has cost them. Ask about what they've actually done, not what they might do (<em>The Mom Test</em>).",
+  Usability: "Sketch the main screen on paper, or have your agent mock up a clickable prototype. Watch 3 people try the main task without any help from you, and note where they get stuck.",
+  Feasibility: "Time-box a spike: spend one afternoon building <em>only</em> the scary part (the sync, the model call, the integration). Skip the UI, login, and polish.",
+  Viability: "Do a back-of-the-envelope check: cost per user per month, the hours a week you'd spend maintaining it, and whether any terms of service or laws block you. Write down the numbers."
+};
+function buildIdea() {
+  $("#ideaMira").innerHTML = portrait("mira", "smile");
+  $("#ideaByte").innerHTML = portrait("byte", "excited");
+  const sl = $("#sliders");
+  for (const r of RISKS) {
+    const row = document.createElement("div");
+    row.className = "slider";
+    row.innerHTML = `<label for="s-${r}">${r}</label><input type="range" id="s-${r}" min="1" max="5" value="3"><span id="v-${r}">3</span>`;
+    sl.appendChild(row);
+    row.querySelector("input").oninput = e => $("#v-" + r).textContent = e.target.value;
+  }
+  $("#planBtn").onclick = () => {
+    const idea = $("#ideaText").value.trim() || "your app";
+    const scores = RISKS.map(r => [r, +$("#s-" + r).value]);
+    const max = Math.max(...scores.map(x => x[1]));
+    const top = scores.filter(x => x[1] === max).map(x => x[0]);
+    // Ties go to value, following Cagan: "the toughest risk is usually value risk"
+    const pick = top.includes("Value") ? "Value" : top[0];
+    const p = $("#plan");
+    p.innerHTML = `<div class="callout"><b>Riskiest: ${pick}${top.length > 1 ? ` <span style="color:var(--muted);font-weight:500">(tied with ${top.filter(t => t !== pick).join(", ")})</span>` : ""}</b>
+      For <em>${esc(idea)}</em>, test this first:<br><br>${TESTS[pick]}<br><br>
+      <span style="color:var(--muted)">Do this before you open your coding agent. If the test fails, you've saved yourself a weekend.</span></div>`;
+    p.hidden = false;
+  };
+  const inputs = [...document.querySelectorAll(".recall input")];
+  for (const inp of inputs) inp.oninput = () => {
+    const found = new Set();
+    for (const i of inputs) {
+      const hit = RISKS.find(r => r.toLowerCase() === i.value.trim().toLowerCase() && !found.has(r));
+      i.classList.toggle("ok", !!hit);
+      if (hit) found.add(hit);
+    }
+    $("#recallMsg").textContent = found.size === 4 ? "All four! Byte is doing a victory dance. Try again tomorrow without looking." : "";
+  };
+}
+
+/* ---------- wiring ---------- */
+$("#nameIn").value = playerName;
+$("#startBtn").onclick = startGame;
+$("#galleryBtn").onclick = () => { renderGallery(); show("gallery"); };
+$("#ideaBtn").onclick = () => show("idea");
+$("#box").onclick = advance;
+$("#box").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); advance(); } };
+$("#backBtn").onclick = back;
+$("#skipBtn").onclick = () => toggleSkip();
+$("#risksBtn").onclick = peekRisks;
+$("#menuBtn").onclick = () => show("title");
+$("#ideaPlay").onclick = startGame;
+$("#ideaGal").onclick = () => { renderGallery(); show("gallery"); };
+$("#ideaTitle").onclick = () => show("title");
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]");
+  if (g) {
+    const to = g.dataset.go;
+    if (to === "play") startGame();
+    else if (to === "gallery") { renderGallery(); show("gallery"); }
+    else show(to);
+    return;
+  }
+  const en = e.target.closest("[data-end]");
+  if (en) { renderEnding(en.dataset.end, null); show("ending"); $("#ending").scrollTop = 0; }
+});
+document.addEventListener("keydown", e => {
+  if (screen !== "game") return;
+  const tag = document.activeElement?.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") return;
+  if (e.key === " " || e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); advance(); }
+  else if (e.key === "ArrowLeft") back();
+});
+buildIdea();
+
+/* ---------- boot (keeps an in-progress playthrough across page updates) ---------- */
+try { window.claude?.hot?.snapshot?.(() => ({ S: screen === "game" ? S : null, hist })); } catch (e) {}
+function start(data) {
+  if (data && data.S) {
+    S = data.S; hist = data.hist || [];
+    show("game"); step();
+  } else show("title");
+}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
